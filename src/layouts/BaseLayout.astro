@@ -1,0 +1,23 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>kontol</title>
+  </head>
+  <body class="bg-[#0a0a0a] text-gray-300 selection:bg-blue-500/30 font-sans">
+    <nav class="max-w-4xl mx-auto p-6 flex justify-between items-center">
+      <a href="/" class="text-white font-bold text-xl">M.</a>
+      <div class="space-x-6 text-sm">
+        <a href="/" class="hover:text-blue-400">Work</a>
+        <a href="/admin" class="hover:text-blue-400">Admin</a>
+      </div>
+    </nav>
+    <main class="max-w-4xl mx-auto px-6 py-10">
+      <slot />
+    </main>
+  </body>
+</html>

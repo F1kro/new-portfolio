@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-black text-[#fafafa] selection:bg-blue-500/30 overflow-x-hidden;
+        font-family: "Inter", sans-serif;
+    }
+}
+
+.card {
+    /* Radius kecil (xl) & Border lebih kontras (white/20) */
+    @apply rounded-xl border border-white/20 bg-transparent p-6 transition-all duration-500;
+}
+
+.card:hover {
+    /* Hitam pekat muncul saat hover */
+    @apply bg-[#050505] border-white/40;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9);
+}
+
+/* CSS Tambahan untuk White Mode */
+.light-mode {
+    filter: invert(1) hue-rotate(180deg);
+    background-color: #fff; /* Pastikan background jadi putih bersih */
+}
+
+/* KECUALIKAN Gambar & Canvas agar warnanya tidak hancur */
+.light-mode #space-canvas,
+.light-mode img,
+.light-mode .card img {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* KHUSUS untuk GitHub Chart agar tetap HIJAU di White Mode */
+.light-mode #github img {
+    filter: none !important; /* Matikan invert khusus buat chart ini */
+    mix-blend-mode: multiply; /* Agar background putih chart nyatu sama bg putih mode */
+}
+
+/* Custom Scrollbar agar tidak merusak UI */
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+    background: #000;
+}
+::-webkit-scrollbar-thumb {
+    background: #111;
+    border-radius: 10px;
+}

@@ -1,0 +1,51 @@
+<div class="relative flex items-center gap-2">
+  <nav id="nav-menu" class="hidden md:flex absolute md:relative top-14 md:top-0 right-0 md:right-auto flex-col md:flex-row gap-4 md:gap-6 text-sm font-medium bg-[#0a0a0a]/95 md:bg-transparent p-6 md:p-0 rounded-xl border border-white/10 md:border-none min-w-[180px] md:min-w-0 z-[100] shadow-2xl md:shadow-none">
+    <a href="/" class="hover:text-blue-400 transition-colors py-2 md:py-0 border-b border-white/5 md:border-none">Home</a>
+    <a href="/experiences" class="hover:text-blue-400 transition-colors py-2 md:py-0 border-b border-white/5 md:border-none whitespace-nowrap">Experience</a>
+    <a href="/projects" class="hover:text-blue-400 transition-colors py-2 md:py-0 border-b border-white/5 md:border-none">Projects</a>
+    <a href="/blogs" class="hover:text-blue-400 transition-colors py-2 md:py-0 border-b border-white/5 md:border-none">Blog</a>
+    <a href="/contact" class="hover:text-blue-400 transition-colors py-2 md:py-0">Contact</a>
+  </nav>
+
+  <button id="menu-toggle" class="md:hidden p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all active:scale-90 z-[110]" aria-label="Toggle Menu">
+    <svg id="menu-icon" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path id="path1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16"></path>
+      <path id="path2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16"></path>
+      <path id="path3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18h16"></path>
+    </svg>
+  </button>
+</div>
+
+<script is:inline>
+  function setupNavbar() {
+    const btn = document.getElementById('menu-toggle');
+    const menu = document.getElementById('nav-menu');
+
+    if (btn && menu) {
+      // Hapus event listener lama biar gak dobel
+      btn.replaceWith(btn.cloneNode(true));
+      const newBtn = document.getElementById('menu-toggle');
+      
+      newBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Biar gak keganggu klik lain
+        menu.classList.toggle('hidden');
+        menu.classList.toggle('flex');
+        console.log('Menu di-click Masfiq!'); // Cek di inspect element
+      });
+
+      // Klik di luar menu buat nutup
+      document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && !newBtn.contains(e.target)) {
+          menu.classList.add('hidden');
+          menu.classList.remove('flex');
+        }
+      });
+    }
+  }
+
+  // Jalankan pas pertama load
+  setupNavbar();
+  
+  // Jalankan lagi pas navigasi antar halaman (khusus Astro view transitions)
+  document.addEventListener('astro:after-swap', setupNavbar);
+</script>

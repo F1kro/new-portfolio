@@ -1,0 +1,230 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+---
+
+<MainLayout title="Admin Panel | Masfiq">
+  <div class="flex min-h-screen bg-[#050505] text-white overflow-hidden">
+    
+    <aside class="w-64 border-r border-white/5 bg-black/50 backdrop-blur-xl hidden md:flex flex-col relative z-20">
+      <div class="p-8 border-b border-white/5">
+        <h2 class="text-xl font-black tracking-tighter font-josefin uppercase">Masfiq<span class="text-blue-500">.</span>OS</h2>
+        <p class="text-[8px] font-mono text-slate-600 uppercase tracking-[0.3em]">Management System</p>
+      </div>
+      
+      <nav class="flex-1 p-6 space-y-2">
+        <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-4 ml-2">Main Menu</p>
+        <button onclick="window.showTab('projects')" class="nav-item group" id="btn-projects">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-0 group-[.active]:opacity-100 transition-opacity"></span>
+          PROJECTS
+        </button>
+        <button onclick="window.showTab('blogs')" class="nav-item group" id="btn-blogs">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-0 group-[.active]:opacity-100 transition-opacity"></span>
+          BLOG POSTS
+        </button>
+        <div class="pt-6">
+            <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-4 ml-2">External</p>
+            <a href="/" target="_blank" class="nav-item">VIEW SITE ↗</a>
+        </div>
+      </nav>
+
+      <div class="p-6 border-t border-white/5">
+        <button id="logoutBtn" class="w-full py-3 border border-red-500/20 text-red-500 text-[9px] font-bold rounded-lg uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
+          Terminate Session
+        </button>
+      </div>
+    </aside>
+
+    <main id="adminContent" class="flex-1 opacity-0 transition-opacity duration-500 relative z-10 overflow-y-auto">
+      
+      <header class="p-6 border-b border-white/5 flex justify-between items-center md:hidden bg-black/50">
+          <h2 class="text-sm font-bold tracking-tighter uppercase font-josefin">Masfiq Panel</h2>
+          <button id="logoutBtnMobile" class="text-[8px] font-mono text-red-500 uppercase border border-red-500/20 px-3 py-1.5 rounded-md">Logout</button>
+      </header>
+
+      <div class="p-8 md:p-12 max-w-5xl mx-auto">
+        <div class="flex justify-between items-end mb-12">
+          <div>
+            <h1 id="tabTitle" class="text-4xl font-black font-josefin uppercase tracking-tighter">Projects</h1>
+            <p id="tabDesc" class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.4em] mt-2">Manage your creative works</p>
+          </div>
+          <a id="addBtn" href="/admin/add-project" class="px-6 py-3 bg-white text-black text-[10px] font-bold rounded-lg uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-lg shadow-white/5">
+            Add New +
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3" id="dataContainer">
+          <div class="animate-pulse flex flex-col gap-4">
+             <div class="h-16 bg-white/5 rounded-xl border border-white/10"></div>
+             <div class="h-16 bg-white/5 rounded-xl border border-white/10"></div>
+          </div>
+        </div>
+
+        <div class="mt-10 flex items-center justify-between border-t border-white/5 pt-6">
+          <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            Showing Page <span id="currentPageNum">1</span>
+          </p>
+          <div class="flex gap-2">
+            <button id="prevPage" class="px-4 py-2 border border-white/10 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all">Previous</button>
+            <button id="nextPage" class="px-4 py-2 border border-white/10 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all">Next</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <div id="deleteModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="w-full max-w-sm bg-[#0a0a0a] border border-white/10 p-8 rounded-2xl shadow-2xl scale-95 transition-transform duration-300" id="modalBox">
+            <h3 class="text-xl font-bold font-josefin uppercase tracking-tight text-white">Terminate Data?</h3>
+            <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-2 leading-relaxed">This action will permanently delete the entry from Supabase database.</p>
+            <div class="flex gap-3 mt-8">
+                <button onclick="window.closeDeleteModal()" class="flex-1 py-3 border border-white/10 text-[9px] font-bold text-slate-400 rounded-lg uppercase tracking-widest hover:bg-white/5">Cancel</button>
+                <button id="confirmDeleteBtn" class="flex-1 py-3 bg-red-500 text-white text-[9px] font-bold rounded-lg uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/20">Delete Now</button>
+            </div>
+        </div>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .nav-item { @apply w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-400 rounded-xl hover:bg-white/5 hover:text-white transition-all uppercase tracking-widest; }
+  .nav-item.active { @apply bg-white/5 text-white border border-white/10; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+</style>
+
+<script>
+  import { supabase } from "../../lib/supabase";
+
+  let currentTab = 'projects';
+  let currentPage = 1;
+  const itemsPerPage = 6; // Ubah angka ini buat atur jumlah item per halaman
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = "/admin/login"; return; }
+    document.getElementById('adminContent')?.classList.remove('opacity-0');
+    loadData();
+  }
+
+  async function loadData() {
+    const container = document.getElementById('dataContainer');
+    const tabTitle = document.getElementById('tabTitle');
+    const tabDesc = document.getElementById('tabDesc');
+    const addBtn = document.getElementById('addBtn') as HTMLAnchorElement;
+    const pageNumDisplay = document.getElementById('currentPageNum');
+    
+    if (!container) return;
+    container.innerHTML = '<p class="text-[10px] font-mono text-slate-600 uppercase animate-pulse">Fetching from database...</p>';
+
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`btn-${currentTab}`)?.classList.add('active');
+
+    if (currentTab === 'projects') {
+      tabTitle!.innerText = "Projects";
+      tabDesc!.innerText = "Manage your creative works";
+      addBtn.href = "/admin/add-project";
+    } else {
+      tabTitle!.innerText = "Blogs";
+      tabDesc!.innerText = "Write and organize articles";
+      addBtn.href = "/admin/add-blog";
+    }
+
+    // --- LOGIC PAGINATION SUPABASE ---
+    const from = (currentPage - 1) * itemsPerPage;
+    const to = from + itemsPerPage - 1;
+
+    const { data, count, error } = await supabase
+      .from(currentTab)
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    renderList(data || [], currentTab);
+    
+    // Update Pagination UI
+    if (pageNumDisplay) pageNumDisplay.innerText = currentPage.toString();
+    const prevBtn = document.getElementById('prevPage') as HTMLButtonElement;
+    const nextBtn = document.getElementById('nextPage') as HTMLButtonElement;
+    
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = count ? to >= count - 1 : true;
+  }
+
+  function renderList(items, type) {
+    const container = document.getElementById('dataContainer');
+    if (!container) return;
+    if (!items || items.length === 0) {
+      container.innerHTML = '<p class="text-[10px] font-mono text-slate-600 uppercase py-20 text-center border border-white/5 rounded-xl border-dashed italic">No data found.</p>';
+      return;
+    }
+
+    container.innerHTML = items.map((item) => `
+      <div class="group flex items-center justify-between p-5 border border-white/10 rounded-2xl bg-black/40 backdrop-blur-sm hover:border-blue-500/30 transition-all">
+        <div class="flex items-center gap-4 truncate">
+          <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+             <span class="text-[8px] font-mono text-slate-500 uppercase">${(item.slug || 'XX').substring(0,2)}</span>
+          </div>
+          <div class="truncate">
+            <h4 class="text-[11px] font-bold uppercase tracking-tight text-white group-hover:text-blue-400 transition-colors truncate">${item.title}</h4>
+            <p class="text-[8px] font-mono text-slate-600 uppercase tracking-widest mt-1">${item.date || 'No Date'}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button data-id="${item.id}" data-type="${type}" class="btn-delete text-[9px] font-mono text-slate-600 hover:text-red-500 transition-colors uppercase tracking-widest">Delete</button>
+          <a href="/admin/edit?type=${type}&id=${item.id}" class="text-[9px] font-mono text-slate-600 hover:text-white transition-colors uppercase tracking-widest">Edit</a>
+        </div>
+      </div>
+    `).join('');
+
+    attachDeleteListeners();
+  }
+
+  function attachDeleteListeners() {
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = (e.currentTarget as HTMLElement).getAttribute('data-id');
+        const type = (e.currentTarget as HTMLElement).getAttribute('data-type');
+        if (id && type) (window as any).openDeleteModal(id, type);
+      });
+    });
+  }
+
+  // EVENT LISTENERS PAGINATION
+  document.getElementById('prevPage')?.addEventListener('click', () => {
+    if (currentPage > 1) { currentPage--; loadData(); }
+  });
+  document.getElementById('nextPage')?.addEventListener('click', () => {
+    currentPage++; loadData();
+  });
+
+  // MODAL LOGIC
+  let itemToDelete = { id: '', type: '' };
+  (window as any).openDeleteModal = (id, type) => {
+      itemToDelete = { id, type };
+      document.getElementById('deleteModal')?.classList.remove('opacity-0', 'pointer-events-none');
+      document.getElementById('modalBox')?.classList.remove('scale-95');
+  };
+  (window as any).closeDeleteModal = () => {
+      document.getElementById('deleteModal')?.classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('modalBox')?.classList.add('scale-95');
+  };
+
+  document.getElementById('confirmDeleteBtn')?.addEventListener('click', async () => {
+      const { error } = await supabase.from(itemToDelete.type).delete().eq('id', itemToDelete.id);
+      if (!error) { (window as any).closeDeleteModal(); loadData(); }
+  });
+
+  (window as any).showTab = (tab) => {
+    currentTab = tab;
+    currentPage = 1; // Reset ke page 1 tiap ganti tab
+    loadData();
+  };
+
+  init();
+</script>

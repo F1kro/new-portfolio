@@ -1,0 +1,112 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { supabase } from '../../lib/supabase';
+
+// 1. Ambil slug dari URL
+const { slug } = Astro.params;
+
+// 2. Query database Supabase berdasarkan slug
+const { data: post, error } = await supabase
+  .from('blogs')
+  .select('*')
+  .eq('slug', slug)
+  .single();
+
+// 3. Handling kalau blog gak ketemu (404)
+if (error || !post) {
+  return Astro.redirect('/404');
+}
+
+// 4. Ambil Post Sebelumnya (Created At < Current)
+const { data: prevPost } = await supabase
+  .from('blogs')
+  .select('title, slug')
+  .lt('created_at', post.created_at)
+  .order('created_at', { ascending: false })
+  .limit(1)
+  .single();
+
+// 5. Ambil Post Selanjutnya (Created At > Current)
+const { data: nextPost } = await supabase
+  .from('blogs')
+  .select('title, slug')
+  .gt('created_at', post.created_at)
+  .order('created_at', { ascending: true })
+  .limit(1)
+  .single();
+---
+
+<MainLayout title={`${post.title} | Blog`}>
+  <article class="max-w-4xl mx-auto text-white animate-fade-in relative z-10 py-10 px-6">
+    
+    <div class="mb-8">
+      <a href="/blogs" class="inline-flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-mono text-slate-300 hover:text-white transition-all uppercase tracking-widest">
+        ← Back to Blog
+      </a>
+    </div>
+
+    <div class="flex items-center gap-4 text-[9px] font-mono text-slate-500 mb-4 uppercase tracking-[0.2em]">
+      <span>{post.date}</span>
+      <span>•</span>
+      <span>{post.reading_time || post.readingTime || '5 MIN READ'}</span>
+    </div>
+
+    <h1 class="text-3xl md:text-5xl font-black mb-4 tracking-tighter font-josefin leading-none uppercase">
+      {post.title}
+    </h1>
+    <p class="text-[14px] md:text-lg text-slate-400 leading-relaxed mb-8 font-light italic">
+      "{post.description}"
+    </p>
+
+    {post.image_url && (
+      <div class="mb-12 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-blue-500/5">
+        <img 
+          src={post.image_url} 
+          alt={post.title} 
+          class="w-full h-auto object-cover max-h-[500px]"
+          onerror="this.style.display='none'"
+        />
+      </div>
+    )}
+
+    <div class="prose-custom space-y-8 mb-16 text-slate-300 text-[13px] md:text-[15px] leading-relaxed text-justify">
+        <Fragment set:html={post.content} />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-16 border-t border-white/5 pt-10">
+      {prevPost ? (
+        <a href={`/blogs/${prevPost.slug}`} class="group p-5 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-blue-500/30 transition-all text-left">
+          <div class="text-slate-600 text-xs group-hover:-translate-x-1 transition-transform">←</div>
+          <div>
+            <p class="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Previous Post</p>
+            <h4 class="text-xs font-bold text-white group-hover:text-blue-400 transition-colors uppercase mt-1">{prevPost.title}</h4>
+          </div>
+        </a>
+      ) : <div class="hidden md:block opacity-20 border border-dashed border-white/5 rounded-xl p-5 text-[8px] font-mono uppercase flex items-center justify-center">First Article</div>}
+
+      {nextPost ? (
+        <a href={`/blogs/${nextPost.slug}`} class="group p-5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-end text-right gap-4 hover:border-blue-500/30 transition-all">
+          <div>
+            <p class="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Next Post</p>
+            <h4 class="text-xs font-bold text-white group-hover:text-blue-400 transition-colors uppercase mt-1">{nextPost.title}</h4>
+          </div>
+          <div class="text-slate-600 text-xs group-hover:translate-x-1 transition-transform">→</div>
+        </a>
+      ) : <div class="hidden md:block opacity-20 border border-dashed border-white/5 rounded-xl p-5 text-[8px] font-mono uppercase flex items-center justify-center">Latest Article</div>}
+    </div>
+  </article>
+</MainLayout>
+
+<style is:global>
+  .prose-custom p { @apply mb-4; }
+  .prose-custom h1, .prose-custom h2, .prose-custom h3 {
+    @apply text-white font-bold mt-8 mb-4 uppercase tracking-tight font-josefin;
+  }
+  .prose-custom h2 { @apply text-xl; }
+  .prose-custom ul, .prose-custom ol { @apply ml-5 mb-4 space-y-2 list-disc text-slate-400; }
+  .prose-custom pre, .prose-custom code {
+    @apply bg-[#0d1117] border border-white/10 p-4 rounded-xl font-mono text-[11px] text-blue-300 block overflow-x-auto my-6;
+  }
+  .prose-custom img { @apply rounded-xl border border-white/10 my-8; }
+  .prose-custom a { @apply text-blue-400 underline hover:text-blue-300; }
+</style>

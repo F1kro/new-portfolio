@@ -1,0 +1,99 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import { supabase } from "../../lib/supabase";
+
+// DEBUG: Matikan redirect otomatis dulu buat mastiin bisa tembus login
+// const { data: { session } } = await supabase.auth.getSession();
+// if (session) return Astro.redirect('/admin/dashboard');
+---
+
+<MainLayout title="Admin Login | Fiqro Najiah">
+    <section class="relative z-10 min-h-[90vh] flex items-center justify-center px-6 overflow-hidden">
+        <div class="planet-arc absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-[50%] opacity-20 bg-radial-gradient"></div>
+
+        <div class="w-full max-w-md card bg-black/40 backdrop-blur-xl border-white/10 p-8 md:p-12 relative">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-black tracking-tighter text-white uppercase font-josefin">Admin Access</h1>
+                <p class="text-[9px] font-mono text-slate-500 uppercase tracking-[0.4em] mt-2">Authorized Personnel Only</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="admin@fiqro.dev" 
+                        required 
+                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-800"
+                    />
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-mono text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="••••••••" 
+                        required 
+                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-800"
+                    />
+                </div>
+
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="w-full py-4 mt-4 bg-white text-black font-bold text-[10px] uppercase tracking-[0.3em] rounded-lg hover:bg-blue-500 hover:text-white transition-all duration-500 active:scale-95"
+                >
+                    Sign In to Dashboard
+                </button>
+            </form>
+
+            <div id="errorMessage" class="hidden mt-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-mono text-center uppercase tracking-wider italic">
+                Invalid Credentials.
+            </div>
+        </div>
+    </section>
+</MainLayout>
+
+<script>
+    import { supabase } from "../../lib/supabase";
+
+    const form = document.getElementById('loginForm') as HTMLFormElement;
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const errorMessage = document.getElementById('errorMessage');
+
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Checking Auth...";
+        errorMessage?.classList.add('hidden');
+
+        const email = (document.getElementById('email') as HTMLInputElement).value;
+        const password = (document.getElementById('password') as HTMLInputElement).value;
+
+        // 1. Proses Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) {
+            console.error("Login Error:", error);
+            if (errorMessage) {
+                errorMessage.classList.remove('hidden');
+                errorMessage.innerText = error.message.toUpperCase();
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Sign In to Dashboard";
+        } else {
+            console.log("Login Success, Session:", data.session);
+            
+            // 2. Beri jeda 500ms biar cookie kesimpen dulu di browser
+            submitBtn.innerText = "Success! Redirecting...";
+            setTimeout(() => {
+                window.location.href = "/admin/dashboard";
+            }, 500);
+        }
+    });
+</script>
