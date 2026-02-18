@@ -39,6 +39,8 @@
     mix-blend-mode: multiply; /* Agar background putih chart nyatu sama bg putih mode */
 }
 
+/* KECUALIKAN Gambar & Canvas agar warnanya tidak hancur */
+
 /* Custom Scrollbar agar tidak merusak UI */
 ::-webkit-scrollbar {
     width: 5px;
